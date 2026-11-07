@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.45" />
+      <stop offset="60%" stop-color="#09090b" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#09090b" stop-opacity="1" />
+    </radialGradient>
+    <radialGradient id="cyanGlow" cx="30%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="emeraldGlow" cx="70%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+    </radialGradient>
+    <!-- Border Linear Gradient -->
+    <linearGradient id="cardBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.6" />
+      <stop offset="50%" stop-color="#27272a" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Canvas Base -->
+  <rect width="1280" height="640" fill="#09090b" />
+  <rect width="1280" height="640" fill="url(#bgGlow)" />
+  <circle cx="350" cy="280" r="300" fill="url(#cyanGlow)" />
+  <circle cx="950" cy="320" r="300" fill="url(#emeraldGlow)" />
+
+  <!-- Subtle Grid Lines -->
+  <g stroke="#27272a" stroke-width="0.5" stroke-opacity="0.4">
+    <line x1="0" y1="160" x2="1280" y2="160" />
+    <line x1="0" y1="320" x2="1280" y2="320" />
+    <line x1="0" y1="480" x2="1280" y2="480" />
+    <line x1="320" y1="0" x2="320" y2="640" />
+    <line x1="640" y1="0" x2="640" y2="640" />
+    <line x1="960" y1="0" x2="960" y2="640" />
+  </g>
+
+  <!-- Main Container Frame -->
+  <rect x="60" y="50" width="1160" height="540" rx="28" fill="#18181b" fill-opacity="0.4" stroke="url(#cardBorder)" stroke-width="1.5" />
+
+  <!-- Top Badges -->
+  <g transform="translate(100, 95)">
+    <!-- Hackathon Track Pill -->
+    <rect x="0" y="0" width="230" height="32" rx="16" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.5" />
+    <circle cx="16" cy="16" r="4" fill="#60a5fa" />
+    <text x="28" y="20.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#93c5fd" letter-spacing="0.08em">SWITCH AI HACKATHON</text>
+
+    <!-- Track Pill -->
+    <rect x="245" y="0" width="220" height="32" rx="16" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="1" stroke-opacity="0.5" />
+    <circle cx="261" cy="16" r="4" fill="#34d399" />
+    <text x="273" y="20.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#6ee7b7" letter-spacing="0.08em">TRACK 01: BUSINESS WORKFLOW</text>
+  </g>
+
+  <!-- Header Title -->
+  <text x="100" y="200" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="54" font-weight="800" fill="#f4f4f5" letter-spacing="-0.03em">
+    PRAESYNC
+  </text>
+  <text x="100" y="240" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#a1a1aa">
+    Autonomous Sev-1 SRE Swarm &amp; Cluster Telemetry Mesh
+  </text>
+
+  <!-- 3 Swarm Pipeline Cards -->
+  <g transform="translate(100, 280)">
+    <!-- Card 1: Investigator -->
+    <rect x="0" y="0" width="300" height="150" rx="18" fill="#09090b" fill-opacity="0.8" stroke="#27272a" stroke-width="1" />
+    <text x="24" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#60a5fa">SWITCH_AGENT: 01</text>
+    <rect x="200" y="22" width="76" height="20" rx="6" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1" stroke-opacity="0.4" />
+    <text x="212" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="10" font-weight="600" fill="#fbbf24">ROOT_CAUSE</text>
+    <text x="24" y="70" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="16" font-weight="700" fill="#fafafa">@swarm-investigator</text>
+    <text x="24" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">Parses telemetry and isolates</text>
+    <text x="24" y="116" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">failing microservice in 1.8s</text>
+
+    <!-- Card 2: Patcher -->
+    <rect x="330" y="0" width="300" height="150" rx="18" fill="#09090b" fill-opacity="0.8" stroke="#10b981" stroke-width="1.2" stroke-opacity="0.6" />
+    <text x="354" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#60a5fa">SWITCH_AGENT: 02</text>
+    <rect x="530" y="22" width="76" height="20" rx="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="1" stroke-opacity="0.4" />
+    <text x="542" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="10" font-weight="600" fill="#34d399">PR_OPENED</text>
+    <text x="354" y="70" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="16" font-weight="700" fill="#fafafa">@swarm-patcher</text>
+    <text x="354" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">Inspects live repo &amp; commits</text>
+    <text x="354" y="116" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">atomic GitHub PR in 11.2s</text>
+
+    <!-- Card 3: Ops Gatekeeper -->
+    <rect x="660" y="0" width="300" height="150" rx="18" fill="#09090b" fill-opacity="0.8" stroke="#27272a" stroke-width="1" />
+    <text x="684" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="11" font-weight="600" fill="#60a5fa">SWITCH_AGENT: 03</text>
+    <rect x="850" y="22" width="86" height="20" rx="6" fill="#3b82f6" fill-opacity="0.15" stroke="#3b82f6" stroke-width="1" stroke-opacity="0.4" />
+    <text x="862" y="36" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="10" font-weight="600" fill="#60a5fa">GATEKEEPER</text>
+    <text x="684" y="70" font-family="'SF Mono', Menlo, Consolas, monospace" font-size="16" font-weight="700" fill="#fafafa">@swarm-ops</text>
+    <text x="684" y="98" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">Human SRE sign-off verifies</text>
+    <text x="684" y="116" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" fill="#a1a1aa">canary progressive rollout</text>
+  </g>
+
+  <!-- Metrics Highlight Bar -->
+  <g transform="translate(100, 470)">
+    <!-- MTTR Pill -->
+    <rect x="0" y="0" width="230" height="48" rx="12" fill="#09090b" stroke="#27272a" stroke-width="1" />
+    <text x="20" y="22" font-family="'SF Mono', monospace" font-size="10" fill="#71717a">BENCHMARKED MTTR</text>
+    <text x="20" y="40" font-family="'SF Mono', monospace" font-size="15" font-weight="700" fill="#34d399">13.2 SECONDS</text>
+
+    <!-- Time Saved Pill -->
+    <rect x="245" y="0" width="230" height="48" rx="12" fill="#09090b" stroke="#27272a" stroke-width="1" />
+    <text x="265" y="22" font-family="'SF Mono', monospace" font-size="10" fill="#71717a">DOWNTIME REDUCTION</text>
+    <text x="265" y="40" font-family="'SF Mono', monospace" font-size="15" font-weight="700" fill="#60a5fa">99.4% FASTER</text>
+
+    <!-- Governance Pill -->
+    <rect x="490" y="0" width="230" height="48" rx="12" fill="#09090b" stroke="#27272a" stroke-width="1" />
+    <text x="510" y="22" font-family="'SF Mono', monospace" font-size="10" fill="#71717a">SAFETY STANDARD</text>
+    <text x="510" y="40" font-family="'SF Mono', monospace" font-size="15" font-weight="700" fill="#fbbf24">HUMAN-IN-THE-LOOP</text>
+
+    <!-- Engine Pill -->
+    <rect x="735" y="0" width="225" height="48" rx="12" fill="#09090b" stroke="#27272a" stroke-width="1" />
+    <text x="755" y="22" font-family="'SF Mono', monospace" font-size="10" fill="#71717a">REASONING BACKBONE</text>
+    <text x="755" y="40" font-family="'SF Mono', monospace" font-size="15" font-weight="700" fill="#f4f4f5">GEMINI 3.5 FLASH</text>
+  </g>
+
+  <!-- Bottom Brand Footer -->
+  <text x="100" y="565" font-family="'SF Mono', monospace" font-size="11" fill="#52525b">
+    SWITCH AI TOPOLOGY · PYGITHUB ENGINE · NEXT.JS 15 HUD · SLACK WAR ROOM BRIDGE
+  </text>
+</svg>

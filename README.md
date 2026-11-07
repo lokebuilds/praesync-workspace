@@ -1,6 +1,10 @@
 # Praesync: Autonomous Sev-1 SRE Swarm & Telemetry Mesh
 > **Powered by Switch AI, Google Gemini-3.5-Flash, PyGithub, and Linear-Class Real-Time Cluster Telemetry**
 
+<p align="center">
+  <img src="assets/praesync-social-banner.svg" alt="Praesync Social Banner" width="100%">
+</p>
+
 [![Switch AI](https://img.shields.io/badge/Orchestration-Switch_AI-blue.svg)](https://switch.dev)
 [![Gemini 3.5 Flash](https://img.shields.io/badge/LLM-Gemini--3.5--Flash-orange.svg)](https://ai.google.dev)
 [![Next.js 15](https://img.shields.io/badge/Frontend-Next.js_15-black.svg)](https://nextjs.org)
