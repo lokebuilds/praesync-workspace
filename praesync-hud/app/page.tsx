@@ -24,7 +24,7 @@ const INCIDENT_PRESETS = [
 export default function PraesyncHud() {
   const [prUrl, setPrUrl] = useState<string | null>(null);
   const [wsStatus, setWsStatus] = useState<"ONLINE" | "CONNECTING" | "OFFLINE">("CONNECTING");
-  const [activeCoordinator, setActiveCoordinator] = useState<string>("swarm-investigator");
+  const [activeCoordinator, setActiveCoordinator] = useState<string>("idle");
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [timeElapsed, setTimeElapsed] = useState<string>("00m 00.0s");
   const [customAlertText, setCustomAlertText] = useState<string>(INCIDENT_PRESETS[0].payload);
@@ -317,11 +317,16 @@ export default function PraesyncHud() {
 
   // Determine stage states
   const getStageStatus = (stage: "investigator" | "patcher" | "ops") => {
+    // If not simulating, no PR opened, and not approved: all stages stay on clean STANDBY
+    if (!isSimulating && !prUrl && !isApproved) {
+      return "STANDBY";
+    }
+
     if (stage === "investigator") {
       if (prUrl || activeCoordinator === "swarm-patcher" || activeCoordinator === "swarm-ops") {
         return "COMPLETED";
       }
-      if (isSimulating || activeCoordinator === "swarm-investigator") {
+      if (isSimulating) {
         return "ANALYZING";
       }
       return "STANDBY";
