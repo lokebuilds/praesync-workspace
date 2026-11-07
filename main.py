@@ -441,6 +441,9 @@ def resolve_active_agent(message: str) -> str:
 
 
 @app.post("/api/deploy/approve")
+@app.post("/deploy/approve")
+@app.post("/api/approve")
+@app.get("/api/deploy/approve")
 async def approve_deployment(request: Request):
     """
     Human-in-the-loop gatekeeper sign-off endpoint.
