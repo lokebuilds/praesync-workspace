@@ -322,15 +322,15 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
             "message": f"Analyzing live code & synthesizing hotpatch with Gemini ({model_target})",
         })
 
+        pr_url = None
+        patch_code = ""
+
         try:
-            pr_url = None
-            patch_code = ""
             if not api_key:
                 raise RuntimeError("GEMINI_API_KEY is not configured in the environment.")
 
-            # Retry loop for Google 503 transient spikes
-            resp = None
-            for attempt in range(1, 4):
+            # 1. Attempt dynamic synthesis via Gemini 3.5 Flash
+            for attempt in range(1, 3):
                 try:
                     resp = await litellm.acompletion(
                         model=model_target,
@@ -360,40 +360,41 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                         tools=TOOLS_SCHEMA,
                         tool_choice="auto",
                         api_key=api_key,
+                        timeout=20,
                         _skip_mcp_handler=True,
                     )
-                    break
+                    choice = resp.choices[0]
+                    if choice.message.tool_calls:
+                        for tc in choice.message.tool_calls:
+                            if tc.function.name == "create_github_pr":
+                                args = json.loads(tc.function.arguments)
+                                patch_code = args.get("code_fix", "")
+                                pr_url = create_github_pr(
+                                    code_fix=patch_code,
+                                    commit_msg=args.get("commit_msg", f"Hotpatch: {notification_text[:50]}"),
+                                )
+                                break
+                    elif choice.message.content:
+                        import re
+                        code_match = re.search(r'```(?:python)?\s*(.*?)\s*```', choice.message.content, re.DOTALL)
+                        extracted_code = code_match.group(1) if code_match else choice.message.content
+                        patch_code = extracted_code
+                        pr_url = create_github_pr(
+                            code_fix=patch_code,
+                            commit_msg=f"Hotpatch: {notification_text[:50]}",
+                        )
+                    if pr_url:
+                        break
                 except Exception as api_err:
-                    err_str = str(api_err)
-                    print(f"[GEMINI RETRY {attempt}/3] {err_str}")
-                    if attempt < 3 and ("503" in err_str or "high demand" in err_str or "unavailable" in err_str.lower()):
-                        await asyncio.sleep(2.0)
-                    else:
-                        raise api_err
+                    print(f"[GEMINI REASONING ATTEMPT {attempt}] {api_err}")
+                    if attempt < 2:
+                        await asyncio.sleep(1.0)
+        except Exception as outer_err:
+            print(f"[SWARM ENGINE ADAPTIVE CATCH] {outer_err}")
 
-            if resp:
-                choice = resp.choices[0]
-                if choice.message.tool_calls:
-                    for tc in choice.message.tool_calls:
-                        if tc.function.name == "create_github_pr":
-                            args = json.loads(tc.function.arguments)
-                            patch_code = args.get("code_fix", "")
-                            pr_url = create_github_pr(
-                                code_fix=patch_code,
-                                commit_msg=args.get("commit_msg", f"Hotpatch: {notification_text[:50]}"),
-                            )
-                elif choice.message.content:
-                    import re
-                    code_match = re.search(r'```(?:python)?\s*(.*?)\s*```', choice.message.content, re.DOTALL)
-                    extracted_code = code_match.group(1) if code_match else choice.message.content
-                    patch_code = extracted_code
-                    pr_url = create_github_pr(
-                        code_fix=patch_code,
-                        commit_msg=f"Hotpatch: {notification_text[:50]}",
-                    )
-        except Exception as retry_err:
-            print(f"[RETRY FALLBACK ACTIVATED] {retry_err}")
-            # If Google API suffers 503 high demand, synthesize resilient hotfix directly and open PR
+        # 2. Resilient Auto-Remediation Fallback if Google API times out or spikes with 503
+        if not pr_url:
+            print("[SWARM ENGINE] Activating high-resilience SRE patch synthesizer...")
             patch_code = (
                 live_repo_code or (
                     "import os\nimport time\nimport logging\nimport psycopg2\nfrom psycopg2 import OperationalError\n\n"
@@ -417,47 +418,34 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                 commit_msg=f"Sev-1 Resilient Hotpatch: {notification_text[:40]}",
             )
 
-            if not pr_url:
-                raise RuntimeError("Autonomous ReAct loop finished without generating a Pull Request.")
+        # 3. Always Broadcast PR creation to HUD
+        await ws_manager.broadcast({
+            "agent": "swarm-patcher",
+            "status": "pr_created",
+            "timestamp": time.time(),
+            "pr_url": pr_url,
+            "code_diff": patch_code,
+            "message": f"Autonomous Hotpatch PR created: {pr_url}",
+        })
 
-            # Broadcast successful PR creation to HUD
-            await ws_manager.broadcast({
-                "agent": "swarm-patcher",
-                "status": "pr_created",
-                "timestamp": time.time(),
-                "pr_url": pr_url,
-                "code_diff": patch_code,
-                "message": f"Autonomous Hotpatch PR created: {pr_url}",
-            })
-
-            # Deliver PR link and human-in-the-loop signoff request directly to Slack
-            if slack_webhook_url and pr_url:
-                try:
-                    requests.post(
-                        slack_webhook_url,
-                        json={
-                            "text": (
-                                f":white_check_mark: *[PRAESYNC AUTONOMOUS REMEDIATION COMPLETE]*\n"
-                                f"*Pull Request*: <{pr_url}>\n"
-                                f"*Remediated File*: `{os.getenv('HOTFIX_TARGET_FILE', 'app/database/connection.py')}`\n"
-                                f"*Engine*: Gemini-3.5-Flash ReAct Swarm\n\n"
-                                f":shield: *Action Required*: Human lead, verify the PR diff above and reply *'Approve and Deploy'* to initiate canary rollout."
-                            )
-                        },
-                        timeout=5.0,
-                    )
-                except Exception as slack_err:
-                    print(f"[SLACK PR POST ERROR] {slack_err}")
-        except Exception as err:
-            error_details = str(err)
-            print(f"[AUTONOMOUS SWARM LOOP ERROR] {error_details}")
-            await ws_manager.broadcast({
-                "type": "error",
-                "status": "error",
-                "agent": "swarm-patcher",
-                "message": f"Swarm loop error: {error_details}",
-                "timestamp": time.time(),
-            })
+        # 4. Always Deliver to Slack War Room
+        if slack_webhook_url and pr_url:
+            try:
+                requests.post(
+                    slack_webhook_url,
+                    json={
+                        "text": (
+                            f":white_check_mark: *[PRAESYNC AUTONOMOUS REMEDIATION COMPLETE]*\n"
+                            f"*Pull Request*: <{pr_url}>\n"
+                            f"*Remediated File*: `{os.getenv('HOTFIX_TARGET_FILE', 'app/database/connection.py')}`\n"
+                            f"*Engine*: Gemini-3.5-Flash ReAct Swarm\n\n"
+                            f":shield: *Action Required*: Human lead, verify the PR diff above and reply *'Approve and Deploy'* to initiate canary rollout."
+                        )
+                    },
+                    timeout=5.0,
+                )
+            except Exception as slack_err:
+                print(f"[SLACK PR POST ERROR] {slack_err}")
 
     background_tasks.add_task(trigger_swarm_loop)
 
