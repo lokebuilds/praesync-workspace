@@ -293,12 +293,33 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
 
         model_target = get_gemini_model()
         api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        github_pat = os.getenv("GITHUB_PAT")
+        repo_name = os.getenv("GITHUB_REPO")
+        file_path = os.getenv("HOTFIX_TARGET_FILE", "app/database/connection.py")
+
+        # Fetch live microservice repository source from GitHub
+        live_repo_code = ""
+        if github_pat and repo_name and Github and Auth:
+            try:
+                auth = Auth.Token(github_pat)
+                gh = Github(auth=auth)
+                repo = gh.get_repo(repo_name)
+                remote_file = repo.get_contents(file_path, ref=repo.default_branch or "main")
+                live_repo_code = remote_file.decoded_content.decode("utf-8")
+                await ws_manager.broadcast({
+                    "agent": "swarm-investigator",
+                    "status": "inspecting_repo",
+                    "timestamp": time.time(),
+                    "message": f"Fetched live repository source: {repo_name}/{file_path} ({len(live_repo_code)} bytes)",
+                })
+            except Exception as e:
+                print(f"[LIVE REPO FETCH WARNING] {e}")
 
         await ws_manager.broadcast({
             "agent": "swarm-patcher",
             "status": "processing",
             "timestamp": time.time(),
-            "message": f"Analyzing telemetry and invoking Gemini ReAct loop ({model_target}): {notification_text}",
+            "message": f"Analyzing live code & synthesizing hotpatch with Gemini ({model_target})",
         })
 
         try:
@@ -315,13 +336,21 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                         "content": (
                             "You are swarm-patcher, an autonomous SRE hotfix agent. "
                             "An incident alert was escalated from the investigator. "
-                            "Analyze the issue, write a clean Python hotfix directly remediating the root cause, "
-                            "and immediately call the create_github_pr tool to commit and open a PR."
+                            "You are inspecting the real production file currently deployed on the repository. "
+                            "Analyze the live source code and write a clean, complete Python file remediating the root cause. "
+                            "Immediately call the create_github_pr tool with the complete remediated code to commit and open a PR."
                         ),
                     },
                     {
                         "role": "user",
-                        "content": f"Remediate incident: {notification_text}. Synthesize hotpatch code and open PR using create_github_pr.",
+                        "content": (
+                            f"Incident Alert: {notification_text}\n"
+                            f"Target Microservice: {repo_name}\n"
+                            f"Target File: {file_path}\n\n"
+                            f"=== CURRENT LIVE REPO CODE ({file_path}) ===\n"
+                            f"```python\n{live_repo_code}\n```\n\n"
+                            f"Synthesize the corrected production file and call create_github_pr."
+                        ),
                     },
                 ],
                 tools=TOOLS_SCHEMA,
