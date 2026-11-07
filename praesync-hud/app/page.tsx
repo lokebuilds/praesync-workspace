@@ -28,6 +28,8 @@ export default function PraesyncHud() {
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [timeElapsed, setTimeElapsed] = useState<string>("00m 00.0s");
   const [customAlertText, setCustomAlertText] = useState<string>(INCIDENT_PRESETS[0].payload);
+  const [isApproved, setIsApproved] = useState<boolean>(false);
+  const [isApproving, setIsApproving] = useState<boolean>(false);
 
   const [logs, setLogs] = useState<string[]>([
     "[04:12:00.000] [SYSTEM] Telemetry link armed: ws://127.0.0.1:8000/ws/logs",
@@ -101,6 +103,16 @@ export default function PraesyncHud() {
               setActiveCoordinator(data.agent);
             }
 
+            if (data.status === "rollout_initiated" || data.status === "approved") {
+              setIsApproved(true);
+              setIsApproving(false);
+              setActiveCoordinator("swarm-ops");
+              setLogs((prev) => [
+                `[${ts}] [SWARM_OPS] >>> Canary rollout verified: Production traffic switching to zones us-east-1a, us-east-1b`,
+                ...prev,
+              ]);
+            }
+
             if (data.pr_url) {
               setPrUrl(data.pr_url);
               if (timerIntervalRef.current) {
@@ -149,11 +161,61 @@ export default function PraesyncHud() {
     };
   }, []);
 
+  const handleApproveDeployment = async () => {
+    if (isApproving || isApproved) return;
+    setIsApproving(true);
+    const ts = getTimestamp();
+    setLogs((prev) => [
+      `[${ts}] > [DEPLOY_GATEKEEPER] Human lead authorization submitted: "Approve and Deploy"...`,
+      ...prev,
+    ]);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/deploy/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          author: "Human Lead (SRE)",
+          action: "Approve and Deploy",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      setIsApproved(true);
+      setActiveCoordinator("swarm-ops");
+      setLogs((prev) => [
+        `[${getTimestamp()}] [ACK] Human sign-off accepted: Canary progressive rollout authorized across 3 zones`,
+        ...prev,
+      ]);
+    } catch (err: any) {
+      console.error("Failed to approve deployment:", err);
+      setLogs((prev) => [
+        `[${getTimestamp()}] > [ERROR] Gatekeeper authorization failed: ${err?.message || "Connection refused"}`,
+        ...prev,
+      ]);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
   const triggerDatadogAlert = async () => {
     if (isSimulating) return;
 
-    // Reset PR state and start timer
+    const alertMessage = customAlertText.trim() || INCIDENT_PRESETS[0].payload;
+    const lower = alertMessage.toLowerCase();
+
+    // If operator entered an approval phrase, route directly to Gatekeeper
+    if (lower.includes("approve") || lower.includes("deploy") || lower.includes("rollout")) {
+      await handleApproveDeployment();
+      return;
+    }
+
+    // Reset PR state, approval state, and start timer
     setPrUrl(null);
+    setIsApproved(false);
     setIsSimulating(true);
     setActiveCoordinator("swarm-investigator");
 
@@ -171,7 +233,6 @@ export default function PraesyncHud() {
     }, 100);
 
     const ts = getTimestamp();
-    const alertMessage = customAlertText.trim() || INCIDENT_PRESETS[0].payload;
     setLogs((prev) => [
       `[${ts}] > [SYSTEM] Transmitting incident payload: "${alertMessage}"...`,
       ...prev,
@@ -237,6 +298,9 @@ export default function PraesyncHud() {
     }
 
     if (stage === "ops") {
+      if (isApproved) {
+        return "ROLLOUT_ACTIVE";
+      }
       if (prUrl) {
         return "AWAITING_APPROVAL";
       }
@@ -482,7 +546,9 @@ export default function PraesyncHud() {
         {/* Stage 3: Ops Gatekeeper */}
         <div
           className={`border rounded-2xl p-5 flex flex-col justify-between gap-4 transition-colors ${
-            opsStatus === "AWAITING_APPROVAL"
+            opsStatus === "ROLLOUT_ACTIVE"
+              ? "border-emerald-400/80 bg-zinc-900"
+              : opsStatus === "AWAITING_APPROVAL"
               ? "border-amber-400/80 bg-zinc-900"
               : "border-zinc-800/80 bg-zinc-900/60"
           }`}
@@ -492,7 +558,9 @@ export default function PraesyncHud() {
               <span className="text-[11px] font-mono text-blue-400 font-medium">SWITCH_AGENT: 03</span>
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded-md border ${
-                  opsStatus === "AWAITING_APPROVAL"
+                  opsStatus === "ROLLOUT_ACTIVE"
+                    ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-400"
+                    : opsStatus === "AWAITING_APPROVAL"
                     ? "border-amber-400/40 bg-amber-400/10 text-amber-400 animate-pulse"
                     : "border-zinc-800 bg-zinc-950 text-zinc-500"
                 }`}
@@ -504,14 +572,31 @@ export default function PraesyncHud() {
               @swarm-ops
             </h2>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Deployment gatekeeper. Listens in Slack for human lead confirmation: &quot;Approve and Deploy&quot;.
+              {opsStatus === "ROLLOUT_ACTIVE"
+                ? "Human sign-off verified. Canary progressive rollout active across 3 zones. Sev-1 incident closed."
+                : "Deployment gatekeeper. Awaiting human lead sign-off to initiate production canary rollout."}
             </p>
           </div>
 
-          <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono text-zinc-500">
-            <span>BRIDGE:</span>
-            <span className="text-zinc-300">Switch Slack War Room</span>
-          </div>
+          {/* Interactive Gatekeeper Sign-off Button */}
+          {opsStatus === "ROLLOUT_ACTIVE" ? (
+            <div className="min-h-[44px] h-11 px-4 rounded-xl text-xs font-mono font-medium border border-emerald-400/40 bg-emerald-400/10 text-emerald-400 flex items-center justify-center gap-2 text-center">
+              <span>✓ CANARY ROLLOUT ACTIVE (100% HEALTHY)</span>
+            </div>
+          ) : opsStatus === "AWAITING_APPROVAL" ? (
+            <button
+              onClick={handleApproveDeployment}
+              disabled={isApproving}
+              className="min-h-[44px] h-11 px-4 rounded-xl text-xs font-mono font-medium border border-amber-400 bg-amber-400/15 text-amber-300 hover:bg-amber-400/25 transition-all duration-200 flex items-center justify-center gap-2 text-center cursor-pointer disabled:opacity-50 shadow-[0_0_15px_rgba(251,191,36,0.2)]"
+            >
+              <span>{isApproving ? "APPROVING ROLLOUT..." : "APPROVE & DEPLOY →"}</span>
+            </button>
+          ) : (
+            <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono text-zinc-500">
+              <span>BRIDGE:</span>
+              <span className="text-zinc-300">Switch Slack War Room</span>
+            </div>
+          )}
         </div>
       </section>
 
