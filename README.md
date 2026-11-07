@@ -29,6 +29,33 @@ Instead of on-call engineers scrambling in the dark, the Switch swarm:
 
 ---
 
+## 🌟 Executive Spotlight: The 4 "Wow Factors" That Set Praesync Apart
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                   PRAESYNC INNOVATION MATRIX                                     │
+├──────────────────────────────┬───────────────────────────────────────────────────────────────────┤
+│ 🚀 13-Second MTTR            │ Replaces 45 minutes of manual midnight log grep with sub-15s      │
+│                              │ autonomous root-cause isolation and native PyGithub PR commits.   │
+├──────────────────────────────┼───────────────────────────────────────────────────────────────────┤
+│ 🛡️ Human Gatekeeper Protocol │ Zero unverified deploys. Production canary rollouts require SRE   │
+│                              │ sign-off via HUD button or Slack reply ("Approve and Deploy").    │
+├──────────────────────────────┼───────────────────────────────────────────────────────────────────┤
+│ ⚡ In-HUD Code Diff Modal     │ Live unified diff inspection directly on the dashboard. Inspect   │
+│                              │ syntax-highlighted patches before signing off — zero context tab. │
+├──────────────────────────────┼───────────────────────────────────────────────────────────────────┤
+│ 🌐 Native Microservice Read  │ Queries live GitHub API (Contents API) to fetch real production   │
+│                              │ source code before synthesizing fixes — zero hallucinated mocks.  │
+└──────────────────────────────┴───────────────────────────────────────────────────────────────────┘
+```
+
+> **Design Philosophy**: Built with the ergonomic discipline of **Linear & Apple Developer Tools**:
+> - **Color Math**: Strict 85-10-5 palette in `zinc-950` / `zinc-900` with 1px `zinc-800` borders.
+> - **Continuous Squircles**: Smooth `rounded-2xl` surfaces with subtle ambient glow states.
+> - **Tabular Precision**: `font-mono tabular-nums` millisecond stopwatch prevents layout jitter during high-velocity cluster telemetry streams.
+
+---
+
 ## 📊 2. Empirical Benchmark: Traditional On-Call vs. Praesync
 
 | Operational Metric | Traditional SRE On-Call | Praesync + Switch AI Swarm | Measured Impact |
