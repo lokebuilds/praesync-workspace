@@ -33,7 +33,7 @@ Instead of on-call engineers scrambling in the dark, the Switch swarm:
 
 ---
 
-## 🌟 Executive Spotlight: The 4 "Wow Factors" That Set Praesync Apart
+## 🌟 Core Architectural Highlights
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -161,7 +161,7 @@ Defined natively in [`praesync.template.yaml`](praesync.template.yaml):
 
 ## 🔌 5. How Switch AI is Configured, Wired & Executed (The Exact Mechanics)
 
-Judges scoring the **30% Switch Rubric** need to know: *How exactly is Switch configured, how does it talk to your code, and why is it irreplaceable?*
+Praesync leverages Switch AI as the core orchestration plane to coordinate multi-agent state machines, bridge the incident war room into Slack, and enforce human sign-off before code reaches production:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
@@ -238,16 +238,16 @@ switch run praesync.template.yaml --bridge slack
 ```
 Switch connects to the Slack workspace, establishes the `#swarm-war-room` channel, binds the 3 agent identities with distinct avatars, and begins listening for incidents.
 
-### 4. Why Switch is 100% Irreplaceable (The 30% Score)
+### 4. Why Switch AI is Essential to the Architecture
 1. **Multi-Agent Role Isolation**: Without Switch, putting all instructions into a single monolithic LLM prompt leads to catastrophic prompt bleed (the agent hallucinates deployments before writing the patch). Switch enforces clean, sequential agent handoffs.
 2. **Zero-Boilerplate Chat Integration**: Connecting agents to Slack usually requires hundreds of lines of custom Slack Bolt boilerplate, OAuth tokens, and socket-mode servers. Switch reduces this to a single declarative line: `bridge: "{bridge}"`.
 3. **Synchronized Human-in-the-Loop Memory**: Every engineer and every agent in the Slack channel shares the **exact same memory log**. When the human types `"Approve and Deploy"`, Switch delivers it as a verified human turn to `@swarm-ops`.
 
 ---
 
-## 🛡️ 6. Edge-Case Handling & Adversarial ("Rage-Bait") Defense
+## 🛡️ 6. Fault Tolerance & Edge-Case Resilience
 
-What happens if an adversarial user, junior developer, or monitoring glitch submits random text, gibberish, or rage-bait inputs?
+What happens if malformed alert payloads, ambiguous incident logs, or upstream provider capacity limits occur?
 
 Praesync implements a **3-Layer Defense-in-Depth Architecture**:
 
@@ -264,7 +264,7 @@ Praesync implements a **3-Layer Defense-in-Depth Architecture**:
 
 ## ⚖️ 6. Engineering Analysis: Trade-offs & Limitations
 
-Judges value honest technical trade-offs over unsubstantiated hype:
+A realistic engineering assessment of system strengths, trade-offs, and operational constraints:
 
 ### Advantages & Strengths
 * **Native Execution**: Real PyGithub calls, real GitHub branches, and real Pull Requests. Zero mock fallbacks.
@@ -365,15 +365,14 @@ npm run dev
 
 ---
 
-## 🏆 Hackathon Submission Metadata
+## 📌 Project Resources & Live Verification
 
-* **Hackathon**: Flip the Switch Hackathon (Powered by WeMakeDevs & DevTools Academy)
-* **Track**: **Track 01: Best Business Workflow (\$2,000 in cash)**
-* **Side Tracks**: Best Blog (AirPods 5) | #HowISwitch
-* **Team**: Team Jarvis (Solo: Lokesh Sai / `@lokedev`)
+* **Video Walkthrough (2.3 min)**: [Watch on Google Drive](https://drive.google.com/file/d/1_uaLqmDZY79MhD1ZngWzqkn0ItAx4cmu/view?usp=sharing)
 * **Core Submission Workspace**: [`lokebuilds/praesync-workspace`](https://github.com/lokebuilds/praesync-workspace)
-* **Live Microservice Target**: [`lokebuilds/praesync-core`](https://github.com/lokebuilds/praesync-core)
-* **Verified Pull Requests**: [PR #4](https://github.com/lokebuilds/praesync-core/pull/4), [PR #5](https://github.com/lokebuilds/praesync-core/pull/5), [PR #9](https://github.com/lokebuilds/praesync-core/pull/9)
+* **Target Microservice Repo**: [`lokebuilds/praesync-core`](https://github.com/lokebuilds/praesync-core)
+* **Live Verified Pull Requests**: [PR #4](https://github.com/lokebuilds/praesync-core/pull/4) · [PR #5](https://github.com/lokebuilds/praesync-core/pull/5) · [PR #9](https://github.com/lokebuilds/praesync-core/pull/9)
+* **Technical Article**: [Read on DEV.to](https://dev.to/lokebuilds/how-i-built-an-autonomous-sev-1-sre-swarm-in-slack-with-switch-ai-resolving-production-outages-in-3a8m)
+* **Built by**: Lokesh Sai ([@lokebuilds](https://github.com/lokebuilds)) with Switch AI & WeMakeDevs
 
 ---
 

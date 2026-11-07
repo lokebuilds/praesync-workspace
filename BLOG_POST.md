@@ -1,7 +1,7 @@
 # 🚀 How I Built an Autonomous Sev-1 SRE Swarm in Slack with Switch AI: Resolving Production Outages in 13 Seconds
 
 > **From a 2:00 AM PagerDuty Nightmare to a 13-Second Automated Hotfix with Zero-Trust Human Governance.**  
-> *Written by Lokesh Sai (Team Jarvis) for the Flip the Switch Hackathon (Track 01 & Best Blog Track)*
+> *By Lokesh Sai — Built with Switch AI & WeMakeDevs*
 
 ![Praesync Cover](https://raw.githubusercontent.com/lokebuilds/praesync-workspace/main/assets/praesync-final-cream.png)
 
@@ -237,8 +237,8 @@ In Praesync, **zero autonomous code can ever reach production without human veri
 3. **Canary Rollout Active**: Stage 3 transitions to glowing emerald, and `@swarm-ops` broadcasts the verified sign-off card to the Slack war room:  
    `:rocket: [HUMAN SIGNOFF VERIFIED — CANARY ROLLOUT ACTIVE across zones us-east-1a, us-east-1b]. Sev-1 incident closed.`
 
-### What About "Rage-Bait" or Adversarial Inputs?
-If an adversarial user or monitoring glitch submits random gibberish (e.g. *"asdfghjkl"* or *"make me a pizza"*):
+### Edge-Case Handling & Fault Tolerance
+If malformed telemetry or unexpected inputs are received:
 * The system’s **Adaptive Safe-Shield** ensures it never throws a 500 error or crashes.
 * And even if a bogus PR is created, **the Human Gatekeeper stops it dead in its tracks**. The SRE inspects the diff, recognizes the spam, and closes the PR without approving.
 
