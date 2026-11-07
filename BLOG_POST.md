@@ -8,16 +8,10 @@
 ---
 
 ### 📺 Project Links & Live Proof
-* **Live Video Demonstration (2.3 min)**:  
-  https://drive.google.com/file/d/1_uaLqmDZY79MhD1ZngWzqkn0ItAx4cmu/view?usp=sharing
-* **GitHub Submission Workspace**:  
-  https://github.com/lokebuilds/praesync-workspace
-* **Target Microservice Repo**:  
-  https://github.com/lokebuilds/praesync-core
-* **Live Verified Pull Requests**:  
-  - PR #4: https://github.com/lokebuilds/praesync-core/pull/4  
-  - PR #5: https://github.com/lokebuilds/praesync-core/pull/5  
-  - PR #9: https://github.com/lokebuilds/praesync-core/pull/9  
+* **Live Video Demonstration (2.3 min)**: [Watch 2.3-min Walkthrough on Google Drive](https://drive.google.com/file/d/1_uaLqmDZY79MhD1ZngWzqkn0ItAx4cmu/view?usp=sharing)
+* **GitHub Submission Workspace**: [`lokebuilds/praesync-workspace`](https://github.com/lokebuilds/praesync-workspace)
+* **Target Microservice Repo**: [`lokebuilds/praesync-core`](https://github.com/lokebuilds/praesync-core)
+* **Live Verified Pull Requests**: [PR #4](https://github.com/lokebuilds/praesync-core/pull/4) · [PR #5](https://github.com/lokebuilds/praesync-core/pull/5) · [PR #9](https://github.com/lokebuilds/praesync-core/pull/9)  
 
 ---
 
@@ -284,12 +278,9 @@ By combining **Switch AI’s collaborative room topology**, **Google Gemini-3.5-
 ---
 
 ### 🔗 Explore the Project
-* **Full Source Code**:  
-  https://github.com/lokebuilds/praesync-workspace
-* **Watch the Video Demo**:  
-  https://drive.google.com/file/d/1_uaLqmDZY79MhD1ZngWzqkn0ItAx4cmu/view?usp=sharing
-* **Target Microservice**:  
-  https://github.com/lokebuilds/praesync-core
+* **Full Source Code**: [`lokebuilds/praesync-workspace`](https://github.com/lokebuilds/praesync-workspace)
+* **Watch Video Demo**: [Watch 2.3-min Walkthrough](https://drive.google.com/file/d/1_uaLqmDZY79MhD1ZngWzqkn0ItAx4cmu/view?usp=sharing)
+* **Target Microservice**: [`lokebuilds/praesync-core`](https://github.com/lokebuilds/praesync-core)
 
 *Built with ❤️ by Lokesh Sai for the **Flip the Switch Hackathon**.*
 
