@@ -30,6 +30,8 @@ export default function PraesyncHud() {
   const [customAlertText, setCustomAlertText] = useState<string>(INCIDENT_PRESETS[0].payload);
   const [isApproved, setIsApproved] = useState<boolean>(false);
   const [isApproving, setIsApproving] = useState<boolean>(false);
+  const [codeDiff, setCodeDiff] = useState<string | null>(null);
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState<boolean>(false);
 
   const [logs, setLogs] = useState<string[]>([
     "[04:12:00.000] [SYSTEM] Telemetry link armed: ws://127.0.0.1:8000/ws/logs",
@@ -113,6 +115,10 @@ export default function PraesyncHud() {
               ]);
             }
 
+            if (data.code_diff) {
+              setCodeDiff(data.code_diff);
+            }
+
             if (data.pr_url) {
               setPrUrl(data.pr_url);
               if (timerIntervalRef.current) {
@@ -151,7 +157,15 @@ export default function PraesyncHud() {
 
     connectWebSocket();
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsDiffModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
+      window.removeEventListener("keydown", handleKeyDown);
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
       }
@@ -213,8 +227,10 @@ export default function PraesyncHud() {
       return;
     }
 
-    // Reset PR state, approval state, and start timer
+    // Reset PR state, approval state, diff modal, and start timer
     setPrUrl(null);
+    setCodeDiff(null);
+    setIsDiffModalOpen(false);
     setIsApproved(false);
     setIsSimulating(true);
     setActiveCoordinator("swarm-investigator");
@@ -525,16 +541,27 @@ export default function PraesyncHud() {
             </p>
           </div>
 
-          {/* Dynamic PR Action Button */}
+          {/* Dynamic PR Action Buttons */}
           {prUrl ? (
-            <a
-              href={prUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="min-h-[44px] h-11 px-4 rounded-xl text-xs font-mono font-medium border border-emerald-400 bg-emerald-400/15 text-emerald-400 hover:bg-emerald-400/25 transition-all duration-200 flex items-center justify-center gap-2 text-center"
-            >
-              <span>REVIEW PULL REQUEST ON GITHUB →</span>
-            </a>
+            <div className="flex flex-col gap-2">
+              <a
+                href={prUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="min-h-[40px] h-10 px-3 rounded-xl text-xs font-mono font-medium border border-emerald-400 bg-emerald-400/15 text-emerald-400 hover:bg-emerald-400/25 transition-all duration-200 flex items-center justify-center gap-2 text-center"
+              >
+                <span>REVIEW PR ON GITHUB →</span>
+              </a>
+              {codeDiff && (
+                <button
+                  type="button"
+                  onClick={() => setIsDiffModalOpen(true)}
+                  className="min-h-[34px] h-8.5 px-3 rounded-xl text-[11px] font-mono border border-zinc-700 bg-zinc-800/80 text-zinc-300 hover:text-zinc-100 hover:border-zinc-500 hover:bg-zinc-800 transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <span>⚡ PREVIEW HOTPATCH DIFF</span>
+                </button>
+              )}
+            </div>
           ) : (
             <div className="pt-3 border-t border-zinc-800/80 flex items-center justify-between text-xs font-mono text-zinc-500">
               <span>TOOL_BINDING:</span>
@@ -652,6 +679,78 @@ export default function PraesyncHud() {
           <div ref={terminalBottomRef} />
         </div>
       </section>
+
+      {/* 5. In-HUD Hotpatch Code Diff Inspector Modal */}
+      {isDiffModalOpen && codeDiff && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950/60">
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="flex flex-col">
+                  <h3 className="text-xs font-mono font-semibold text-zinc-200 uppercase tracking-wider">
+                    AUTONOMOUS REMEDIATION CODE DIFF
+                  </h3>
+                  <span className="text-[11px] font-mono text-zinc-500">
+                    TARGET: app/database/connection.py
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDiffModalOpen(false)}
+                className="h-8 px-3 rounded-lg border border-zinc-700 bg-zinc-800 text-zinc-400 hover:text-zinc-100 hover:border-zinc-600 text-xs font-mono transition-colors cursor-pointer"
+              >
+                ✕ CLOSE [ESC]
+              </button>
+            </div>
+
+            {/* Code Body */}
+            <div className="p-4 overflow-y-auto font-mono text-xs text-zinc-300 bg-zinc-950/90 flex-1 leading-relaxed">
+              <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-800 text-[11px] text-zinc-500">
+                <span>SYNTHESIZED BY @SWARM-PATCHER (GEMINI-3.5-FLASH)</span>
+                <span className="text-emerald-400">STATUS: COMMITTED TO GITHUB</span>
+              </div>
+              <pre className="whitespace-pre-wrap font-mono text-[12px] leading-5 text-emerald-300/95 bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/80 overflow-x-auto selection:bg-emerald-950 selection:text-emerald-200">
+                {codeDiff}
+              </pre>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between p-4 border-t border-zinc-800 bg-zinc-950/60">
+              <span className="text-[11px] font-mono text-zinc-500">
+                VERIFIED BY PYGITHUB ENGINE
+              </span>
+              <div className="flex items-center gap-3">
+                {prUrl && (
+                  <a
+                    href={prUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-9 px-4 rounded-xl text-xs font-mono border border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-zinc-100 hover:border-zinc-600 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>VIEW ON GITHUB ↗</span>
+                  </a>
+                )}
+                {opsStatus === "AWAITING_APPROVAL" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDiffModalOpen(false);
+                      handleApproveDeployment();
+                    }}
+                    disabled={isApproving}
+                    className="h-9 px-4 rounded-xl text-xs font-mono font-medium border border-amber-400 bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(251,191,36,0.25)]"
+                  >
+                    <span>APPROVE & DEPLOY →</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

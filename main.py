@@ -303,6 +303,7 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
 
         try:
             pr_url = None
+            patch_code = ""
             if not api_key:
                 raise RuntimeError("GEMINI_API_KEY is not configured in the environment.")
 
@@ -333,8 +334,9 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                 for tc in choice.message.tool_calls:
                     if tc.function.name == "create_github_pr":
                         args = json.loads(tc.function.arguments)
+                        patch_code = args.get("code_fix", "")
                         pr_url = create_github_pr(
-                            code_fix=args.get("code_fix", ""),
+                            code_fix=patch_code,
                             commit_msg=args.get("commit_msg", f"Hotpatch: {notification_text[:50]}"),
                         )
             elif choice.message.content:
@@ -342,8 +344,9 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                 import re
                 code_match = re.search(r'```(?:python)?\s*(.*?)\s*```', choice.message.content, re.DOTALL)
                 extracted_code = code_match.group(1) if code_match else choice.message.content
+                patch_code = extracted_code
                 pr_url = create_github_pr(
-                    code_fix=extracted_code,
+                    code_fix=patch_code,
                     commit_msg=f"Hotpatch: {notification_text[:50]}",
                 )
 
@@ -356,6 +359,7 @@ async def webhook_datadog(request: Request, background_tasks: BackgroundTasks):
                 "status": "pr_created",
                 "timestamp": time.time(),
                 "pr_url": pr_url,
+                "code_diff": patch_code,
                 "message": f"Autonomous Hotpatch PR created: {pr_url}",
             })
 
@@ -569,6 +573,7 @@ async def chat_completions(request: Request):
                             "status": "pr_created",
                             "timestamp": time.time(),
                             "pr_url": pr_url,
+                            "code_diff": args.get("code_fix", ""),
                             "message": f"PR created: {pr_url}",
                         })
             elif choice.message.content:
