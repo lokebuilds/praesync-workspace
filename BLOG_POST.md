@@ -135,9 +135,9 @@ kickoff: |
 
 ## 🔬 4. The Deep-Dive: How Praesync Writes Real GitHub PRs in 13 Seconds
 
-Many AI hackathon projects output markdown code blocks to a chat window and call it a day. In a production enterprise, that is useless.
+Many AI demo prototypes simply output markdown code snippets to a chat window and stop. In a production enterprise, that is useless.
 
-Praesync performs a true **Read $\rightarrow$ Analyze $\rightarrow$ Patch $\rightarrow$ Commit** cycle against a live microservice repository (`lokebuilds/praesync-core`):
+Praesync performs a true **Read → Analyze → Patch → Commit** cycle against a live microservice repository (`lokebuilds/praesync-core`):
 
 ```mermaid
 sequenceDiagram
@@ -261,10 +261,10 @@ Every metric below was benchmarked live on our production cluster test runs:
 
 ## 💡 7. What I Learned Building with Switch AI (Tips for First-Time Users)
 
-Building with Switch AI over the course of this hackathon was an eye-opening experience. Here are my top takeaways:
+Building with Switch AI was an eye-opening architectural journey. Here are my key engineering takeaways:
 
 ### 1. Declarative Room Topologies Prevent Prompt Bleed
-If you try to give a single agent instructions to *"investigate the bug, then write the code, then deploy it, but ask for permission first"*, the LLM frequently jumps ahead or forgets instructions. By splitting the workflow into **`investigator` $\rightarrow$ `patcher` $\rightarrow$ `ops`** across a Switch room, each agent has a laser-focused context boundary.
+If you try to give a single agent instructions to *"investigate the bug, then write the code, then deploy it, but ask for permission first"*, the LLM frequently jumps ahead or forgets instructions. By splitting the workflow into **`investigator` → `patcher` → `ops`** across a Switch room, each agent has a laser-focused context boundary.
 
 ### 2. Standard OpenAI-Compatible Endpoints Make Tooling Trivial
 Switch’s protocol uses standard HTTP completions out. This meant I could write my tool execution engine in standard FastAPI (`main.py`), attach native Python libraries like PyGithub, and expose it seamlessly to Switch without proprietary SDK lock-in.
