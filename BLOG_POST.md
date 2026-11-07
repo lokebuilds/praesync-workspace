@@ -3,6 +3,8 @@
 > **From a 2:00 AM PagerDuty Nightmare to a 13-Second Automated Hotfix with Zero-Trust Human Governance.**  
 > *Written by Lokesh Sai (Team Jarvis) for the Flip the Switch Hackathon (Track 01 & Best Blog Track)*
 
+![Praesync Cover](https://raw.githubusercontent.com/lokebuilds/praesync-workspace/main/assets/praesync-cover.png)
+
 ---
 
 ### 📺 Project Links & Live Proof
@@ -290,3 +292,4 @@ By combining **Switch AI’s collaborative room topology**, **Google Gemini-3.5-
   https://github.com/lokebuilds/praesync-core
 
 *Built with ❤️ by Lokesh Sai for the **Flip the Switch Hackathon**.*
+
